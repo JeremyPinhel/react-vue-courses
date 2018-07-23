@@ -1,0 +1,94 @@
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@16.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@16.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+  <script src="https://unpkg.com/prop-types@15.6.1/prop-types.js"></script>
+
+  <script type="text/babel">
+        const rootElement = document.getElementById('root')
+
+        const uuid = () => {
+            let uuid = "", i, random;
+            for (i = 0; i < 32; i++) {
+                random = Math.random() * 16 | 0;
+
+                if (i == 8 || i == 12 || i == 16 || i == 20) {
+                uuid += "-"
+                }
+                uuid += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+            }
+            return uuid;
+        }
+
+        class DeleteButton extends React.Component {
+            constructor() {
+                super()
+                this.handleClick = this.handleClick.bind(this)
+            }
+
+            handleClick() {
+                this.props.handleDelete(this.props.uuid)
+            }
+            
+            render() {
+                return (
+                    <button onClick={this.handleClick}>Delete</button>
+                )
+            }
+        }
+
+    
+        class AddressList extends React.Component {
+            constructor() {
+                super();
+                this.state = {
+                    addresses: [],
+                    textValue: ''
+                }
+                this.handleChange = this.handleChange.bind(this);
+                this.handleDelete = this.handleDelete.bind(this);
+                this.handleKeyPress = this.handleKeyPress.bind(this);
+            }
+
+            handleChange(e) {
+                this.setState({ textValue: e.target.value })
+            }
+
+            handleDelete(id) {
+                this.setState({
+                    addresses: this.state.addresses.filter((a) => a.id !== id)
+                });
+            }
+
+            handleKeyPress(e) {
+                if(e.keyCode == 13){
+                    this.setState({ addresses: [...this.state.addresses, { id: uuid(), email: this.state.textValue }] })
+                    this.setState({ textValue: ''})
+                }
+            }
+
+            render() {
+                const listItems = this.state.addresses.map((d) => 
+                    <li key={d.id}>
+                        <span>{d.email}</span>
+                        <DeleteButton uuid={d.id} handleDelete={this.handleDelete} /> 
+                    </li>
+                );
+
+                return (
+                    <div>
+                        <input type="text" value={this.state.textValue} onKeyDown={this.handleKeyPress} onChange={this.handleChange} />  
+                        <ul>{listItems}</ul>
+                    </div>
+                )
+            }
+        }
+    
+        const element = <AddressList />
+
+        ReactDOM.render(element, rootElement)
+  </script>
+</body>
+</html>
